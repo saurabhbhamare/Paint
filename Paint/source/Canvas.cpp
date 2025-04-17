@@ -7,7 +7,17 @@ Canvas::Canvas(SDL_Renderer* renderer)
 	m_renderer = renderer;
 	m_prevX = -1;
 	m_prevY = -1;
+	InitializeDrawingTools();
+	currentActiveTool = ToolType::PENCIL;
 	Fill();
+	m_currentSelectedColor = { 0,0,0,255 };
+}
+void Canvas::InitializeDrawingTools()
+{
+	pencil = new Pencil();
+	eraser = new Eraser();
+
+	currentTool = pencil;
 }
 
 void Canvas::SaveCanvas(const char* filename,int width , int height)
@@ -77,7 +87,38 @@ void Canvas::Draw(int x, int y)
 	m_prevX = x;
 	m_prevY = y;
 }
+void Canvas::HandleDrawingTool(int x, int y)
+{
+	switch (currentActiveTool)
+	{
+	case ToolType::PENCIL:
+		pencil->Draw(m_renderer, m_texture, m_prevX, m_prevY, x, y,m_currentSelectedColor);
+		break;
+	}
+}
+void Canvas::Erase(int x, int y )
+{ 
+	if (m_prevX == -1 || m_prevY == -1)
+	{
+		// Set the starting point if the previous point is invalid
+		m_prevX = x;
+		m_prevY = y;
+		return;
+	}
 
+	SDL_SetRenderTarget(m_renderer, m_texture);
+	SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
+	SDL_RenderDrawLine(m_renderer, m_prevX, m_prevY, x, y);
+	SDL_SetRenderTarget(m_renderer, NULL);
+
+
+	m_prevX = x;
+	m_prevY = y;
+}
+void Canvas::ResizeDrawingTool()
+{
+	
+}
 void Canvas::Render()
 {
 	SDL_RenderCopy(m_renderer, m_texture, NULL, NULL);

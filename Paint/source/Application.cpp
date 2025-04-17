@@ -69,20 +69,47 @@ void Application::Run()
 				int mPosX;
 				int mPosY;
 
+				
 				SDL_GetMouseState(&mPosX, &mPosY);
-				m_canvas->HandleMouseClick(mPosX, mPosY);
-				m_canvas->Draw(mPosX, mPosY);
+
+				////m_canvas->HandleMouseClick(mPosX, mPosY);
+				//if (m_canvas->currentActiveTool == ToolType::PENCIL)
+				//{
+				//	m_canvas->Draw(mPosX, mPosY);
+				//}
+				//else if(m_canvas->currentActiveTool == ToolType::ERASER)
+				//{
+				//	m_canvas->Erase(mPosX,mPosY);
+				//}
+				
+
+
+				//newer impl
+				m_canvas->HandleDrawingTool(mPosX,mPosY);
 				
 			}
 			if (event.key.keysym.sym == SDLK_s)
 			{
 				m_canvas->SaveCanvas("sketch.bmp",1200,700);
 			}
+			if (event.key.keysym.sym == SDLK_q)
+			{
+				m_canvas->currentActiveTool = ToolType::PENCIL;
+			}
+			if (event.key.keysym.sym == SDLK_w)
+			{
+				m_canvas->currentActiveTool = ToolType::ERASER;
+				if (m_canvas->currentActiveTool == ToolType::ERASER)
+				{
+					std::cout << "current selected tool is : eraser" << std::endl;
+				}
+			}
 		}
 		//SDL_RenderClear(m_renderer);
 		//SDL_SetRenderDrawColor(m_renderer, 100, 220, 220, 255);
 		m_canvas->Render();
 		m_paintUI->RenderMenuList();
+		m_paintUI->ShowColourPallete(m_renderer);
 		SDL_RenderPresent(m_renderer);
 		
 	}

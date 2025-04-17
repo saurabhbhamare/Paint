@@ -155,6 +155,7 @@
     <ClCompile Include="source\learn.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\PaintUI.cpp" />
+    <ClCompile Include="source\Tool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\Application.h" />
