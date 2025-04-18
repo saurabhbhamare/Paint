@@ -12,9 +12,10 @@ Tool::Tool()
 
 //Subclass -> Pencil
 
-void Pencil::Draw(SDL_Renderer* renderer,SDL_Texture* texture,int&  prevX, int& prevY, int x, int y,SDL_Color &currentSelectedColor)
+void Pencil::Draw(SDL_Renderer* renderer,SDL_Texture* texture,int&  prevX, int& prevY, int x, int y,SDL_Color currentSelectedColor)
 {
-	std::cout << "In Pencil Draw Function" << std::endl;
+	//std::cout << "In Pencil Draw Function" << std::endl;
+	
 	if (prevX == -1 || prevY == -1)
 	{
 		// Set the starting point if the previous point is invalid

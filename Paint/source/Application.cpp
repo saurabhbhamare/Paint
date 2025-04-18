@@ -56,6 +56,15 @@ void Application::Run()
 	{
 		while (SDL_PollEvent(&event))
 		{
+			if (event.button.button ==  SDL_BUTTON_LEFT)
+			{
+				
+				int mPosX;
+				int mPosY;
+				SDL_GetMouseState(&mPosX, &mPosY);
+				//std::cout << "you clicked :" << mPosX <<" "<< mPosY << std::endl;
+				//m_canvas->m_currentSelectedColor = m_paintUI->PickColorFromPaletteUI(mPosX, mPosY ,m_canvas->m_paletteColors);
+			}
 			if (event.type == SDL_QUIT)
 			{
 				running = false;
@@ -71,6 +80,13 @@ void Application::Run()
 
 				
 				SDL_GetMouseState(&mPosX, &mPosY);
+				
+				//m_canvas->m_currentSelectedColor = m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors);
+
+				//std::cout << m_canvas->m_currentSelectedColor.r;
+				//to pick color
+
+				
 
 				////m_canvas->HandleMouseClick(mPosX, mPosY);
 				//if (m_canvas->currentActiveTool == ToolType::PENCIL)
@@ -82,7 +98,10 @@ void Application::Run()
 				//	m_canvas->Erase(mPosX,mPosY);
 				//}
 				
+				//m_canvas->m_currentSelectedColor = m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors);
+				//m_canvas->SetCurrentSelectedColor(m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors));
 
+				m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors, m_canvas->m_currentSelectedColor);
 
 				//newer impl
 				m_canvas->HandleDrawingTool(mPosX,mPosY);
@@ -104,12 +123,13 @@ void Application::Run()
 					std::cout << "current selected tool is : eraser" << std::endl;
 				}
 			}
+			
 		}
 		//SDL_RenderClear(m_renderer);
 		//SDL_SetRenderDrawColor(m_renderer, 100, 220, 220, 255);
 		m_canvas->Render();
 		m_paintUI->RenderMenuList();
-		m_paintUI->ShowColourPallete(m_renderer);
+		m_paintUI->ShowColourPallete(m_renderer,m_canvas->m_paletteColors);
 		SDL_RenderPresent(m_renderer);
 		
 	}

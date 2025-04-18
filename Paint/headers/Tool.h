@@ -1,6 +1,6 @@
 #pragma once
 #include<SDL.h>
-
+#include<map>
 enum ToolType
 {
 	PENCIL,
@@ -26,7 +26,7 @@ protected:
 class Pencil : public Tool
 {
 public: 
-	void Draw(SDL_Renderer* renderer, SDL_Texture* texture, int& prevX, int& prevY, int x, int y,SDL_Color &currentSelectedColor);
+	void Draw(SDL_Renderer* renderer, SDL_Texture* texture, int& prevX, int& prevY, int x, int y,SDL_Color currentSelectedColor);
 };
 class Eraser : public Tool
 {

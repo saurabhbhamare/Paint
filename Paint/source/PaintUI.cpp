@@ -8,6 +8,7 @@ PaintUI::PaintUI()
 	InitializeMenuList();
 	LoadSDLCursor();
 	InitializeCursor();
+	LoadColorPointerArrow();
 }
 void PaintUI::InitializeMenuList()
 {
@@ -78,61 +79,55 @@ void PaintUI::InitializeCursor()
 		std::cout << "failed to create the cursor" << std::endl;
 	}
 }
-void PaintUI::ShowColourPallete(SDL_Renderer* renderer)
+void PaintUI::ShowColourPallete(SDL_Renderer* renderer,std::map<std::string,SDL_Color>*colorPalette)
 {
-	SDL_Color colours[40] = {
-	   {255, 0, 0, 255},    // Red
-	   {0, 255, 0, 255},    // Green
-	   {0, 0, 255, 255},    // Blue
-	   {255, 255, 0, 255},  // Yellow
-	   {0, 255, 255, 255},  // Cyan
-	   {255, 0, 255, 255},  // Magenta
-	   {255, 165, 0, 255},  // Orange
-	   {128, 0, 128, 255},  // Purple
-	   {255, 192, 203, 255},// Pink
-	   {139, 69, 19, 255},  // Brown
-	   {128, 128, 128, 255},// Gray
-	   {255, 255, 255, 255},// White
-	   {0, 0, 0, 255},      // Black
-	   {173, 216, 230, 255},// Light Blue
-	   {0, 100, 0, 255},    // Dark Green
-	   {245, 245, 220, 255},// Beige
-	   {64, 224, 208, 255}, // Turquoise
-	   {230, 230, 250, 255},// Lavender
-	   {255, 215, 0, 255},  // Gold
-	   {192, 192, 192, 255},// Silver
-	   {128, 0, 0, 255},    // Maroon
-	   {0, 128, 0, 255},    // Forest Green
-	   {0, 0, 128, 255},    // Navy Blue
-	   {128, 128, 0, 255},  // Olive
-	   {0, 128, 128, 255},  // Teal
-	   {128, 0, 128, 255},  // Indigo
-	   {255, 99, 71, 255},  // Tomato
-	   {255, 69, 0, 255},   // Red Orange
-	   {240, 230, 140, 255},// Khaki
-	   {210, 180, 140, 255},// Tan
-	   {75, 0, 130, 255},   // Dark Indigo
-	   {255, 250, 250, 255},// Snow White
-	   {222, 184, 135, 255},// Burlywood
-	   {72, 61, 139, 255},  // Dark Slate Blue
-	   {123, 104, 238, 255},// Medium Slate Blue
-	   {255, 239, 213, 255},// Peach Puff
-	   {250, 128, 114, 255},// Salmon
-	   {102, 205, 170, 255},// Medium Aquamarine
-	   {240, 128, 128, 255},// Light Coral
-	   {189, 183, 107, 255} // Dark Khaki
-	};
-
-
 	int boxSize = 20; 
 	int x = 0; 
-	int y = 630;
-
-	for (int i = 0; i < 40; i++)
+	int y = 640;
+	
+	for (const auto& pair : *colorPalette)
 	{
+		SDL_Color color = pair.second;
 		SDL_Rect box = { x,y,40,80 };
-		SDL_SetRenderDrawColor(renderer, colours[i].r, colours[i].g, colours[i].b, colours[i].a);
+		
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 		SDL_RenderFillRect(renderer, &box);
 		x += 30;
 	}
+	
+}
+SDL_Color PaintUI::PickColorFromPaletteUI(int mPosX , int mPosY, std::map<std::string, SDL_Color>* colorPalette,SDL_Color &color)
+{
+	int x = 0;
+	int y = 640;
+	ShowColorPointerArrow(x, y);
+
+	/*std::cout << "mPosX in PickColor" << mPosX << std::endl;
+	std::cout << "mPosY in PickColor" << mPosY << std::endl;*/
+
+	
+	for (const auto& pair : *colorPalette)
+	{
+		SDL_Rect box = { x,y,40,80 };
+		if (mPosX >= box.x && mPosX<= box.x + box.w && mPosY >= box.y && mPosY <= box.y + box.h)
+		{
+			std::cout << "Current Selected Color" << pair.first << std::endl;
+			color = pair.second;
+			return pair.second;
+		}
+		x += 30;
+	}
+	return { 0, 0, 0, 255 };
+}
+void PaintUI::LoadColorPointerArrow()
+{
+	colorPointerArrow = SDL_LoadBMP("C:/Programming/Paint/Paint/images/handdrawnarrowpalette1.bmp");
+	if (colorPointerArrow == nullptr)
+	{
+		std::cout << "color pointer arrow is null in loadcolorPOInterarrow" << std::endl;
+	}
+}
+void PaintUI :: ShowColorPointerArrow(int x, int y)
+{
+
 }
