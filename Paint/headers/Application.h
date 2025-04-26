@@ -31,7 +31,7 @@ private:
 
 public: 
 	SDL_Window* GetWindow() const;
-	Canvas* GetCanvas() const;
+	Canvas* GetCanvas();
 	PaintUI* GetPaintUI() const;
 	SDL_Renderer* GetRenderer() const;
 	//void ResetXandY();

@@ -5,6 +5,8 @@ enum ToolType
 {
 	PENCIL,
 	ERASER,
+	BRUSH,
+	FILL
 };
 
 class Tool
@@ -21,6 +23,9 @@ protected:
 	int m_minToolSize;
 	int m_currentToolSize;
 	SDL_Cursor* m_cursor;	
+protected:
+	void IncreaseDrawingToolSize();
+	void DecreaseDrawingToolSize();
 
 };
 class Pencil : public Tool
@@ -30,9 +35,11 @@ public:
 };
 class Eraser : public Tool
 {
-
+public: 
+	void Erase(SDL_Renderer* renderer, SDL_Texture* texture, int& prevX, int& prevY, int x, int y, SDL_Color defaultBackgroundColor);
 };
 class Brush : public Tool
 {
-
+public:
+	void Draw(SDL_Texture* texture, int& prevX, int& prevY, int x, int y, SDL_Color currentSelectedColor);
 };

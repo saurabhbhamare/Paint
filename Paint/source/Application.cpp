@@ -41,9 +41,10 @@ void Application::Init()
 		SDL_Quit();
 		return;
 	}
-	m_canvas = new Canvas(m_renderer);
+	//Canvas and UI crewation
+
+	m_canvas = new Canvas();
 	m_paintUI = new PaintUI();
-	m_canvas->Fill();
 	
 }
 
@@ -80,55 +81,49 @@ void Application::Run()
 
 				
 				SDL_GetMouseState(&mPosX, &mPosY);
-				
-				//m_canvas->m_currentSelectedColor = m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors);
-
-				//std::cout << m_canvas->m_currentSelectedColor.r;
-				//to pick color
-
-				
-
-				////m_canvas->HandleMouseClick(mPosX, mPosY);
-				//if (m_canvas->currentActiveTool == ToolType::PENCIL)
-				//{
-				//	m_canvas->Draw(mPosX, mPosY);
-				//}
-				//else if(m_canvas->currentActiveTool == ToolType::ERASER)
-				//{
-				//	m_canvas->Erase(mPosX,mPosY);
-				//}
-				
-				//m_canvas->m_currentSelectedColor = m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors);
-				//m_canvas->SetCurrentSelectedColor(m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors));
 
 				m_paintUI->PickColorFromPaletteUI(mPosX, mPosY, m_canvas->m_paletteColors, m_canvas->m_currentSelectedColor);
 
 				//newer impl
+				if (m_paintUI->isMenuVisible == true) continue;
 				m_canvas->HandleDrawingTool(mPosX,mPosY);
 				
 			}
-			if (event.key.keysym.sym == SDLK_s)
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
 			{
 				m_canvas->SaveCanvas("sketch.bmp",1200,700);
 			}
-			if (event.key.keysym.sym == SDLK_q)
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m)
+			{
+				m_paintUI->isMenuVisible = !m_paintUI->isMenuVisible;
+				if (m_paintUI->isMenuVisible)
+				{
+					m_paintUI->RenderMenuList();
+				}
+				else
+				{
+					m_paintUI->ClearMenuArea();
+					
+					m_canvas->Render();          // Re-render canvas to restore drawing
+					//m_canvas->Fill();
+					SDL_RenderPresent(Application::GetInstance()->GetRenderer()); // Refresh screen
+
+				}
+			}
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
 			{
 				m_canvas->currentActiveTool = ToolType::PENCIL;
 			}
-			if (event.key.keysym.sym == SDLK_w)
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_2)
 			{
 				m_canvas->currentActiveTool = ToolType::ERASER;
-				if (m_canvas->currentActiveTool == ToolType::ERASER)
-				{
-					std::cout << "current selected tool is : eraser" << std::endl;
-				}
 			}
-			
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_3)
+			{
+				m_canvas->currentActiveTool = ToolType::BRUSH;
+			}
 		}
-		//SDL_RenderClear(m_renderer);
-		//SDL_SetRenderDrawColor(m_renderer, 100, 220, 220, 255);
-		m_canvas->Render();
-		m_paintUI->RenderMenuList();
+		//m_canvas->Render();
 		m_paintUI->ShowColourPallete(m_renderer,m_canvas->m_paletteColors);
 		SDL_RenderPresent(m_renderer);
 		
@@ -138,5 +133,9 @@ void Application::Run()
 void Application::Clean()
 {
 
+}
+Canvas* Application::GetCanvas()
+{
+	return m_canvas;
 }
 

@@ -6,6 +6,5 @@ int main(int argc,char* argv[])
 	paint->Init();
 	paint->Run();
 	paint->Clean();
-
 	return 0; 
 }

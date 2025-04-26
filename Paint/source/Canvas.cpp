@@ -2,24 +2,25 @@
 #include</Programming/Paint/Paint/headers/Application.h>
 #include<SDL.h>
 
-
-Canvas::Canvas(SDL_Renderer* renderer)
+Canvas::Canvas()
 {
-	m_renderer = renderer;
 	m_prevX = -1;
 	m_prevY = -1;
 
 	InitializeDrawingTools();
+	CreateCanvasTexture();
 	currentActiveTool = ToolType::PENCIL;
 	Fill();
 	m_currentSelectedColor = { 0,0,0,255 };
-	m_paletteColors = new std::map<std::string,SDL_Color>;
+	m_defaultCanvasColour = { 220,220,220,255 };
+	m_paletteColors = new std::map<std::string, SDL_Color>;
 	SetColorPalleteColors();
 }
 void Canvas::InitializeDrawingTools()
 {
 	pencil = new Pencil();
 	eraser = new Eraser();
+	brush = new Brush();
 
 	currentTool = pencil;
 }
@@ -55,7 +56,11 @@ void Canvas::ResetPointerPosition()
 }
 void Canvas::CreateCanvasTexture()
 {
-	m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1200, 700);
+	m_texture = SDL_CreateTexture(Application::GetInstance()->GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1200, 700);
+
+
+
+	//m_menuTexture = SDL_CreateTexture(Application::GetInstance()->GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1200, 700);
 	if (m_texture == nullptr)
 	{
 		std::cout << "mtexture is null ptr" << std::endl;
@@ -71,28 +76,15 @@ void Canvas::HandleDrawingTool(int x, int y)
 	switch (currentActiveTool)
 	{
 	case ToolType::PENCIL:
-		pencil->Draw(m_renderer, m_texture, m_prevX, m_prevY, x, y,m_currentSelectedColor);
+		pencil->Draw(Application::GetInstance()->GetRenderer(), m_texture, m_prevX, m_prevY, x, y,m_currentSelectedColor);
+		break;
+	case ToolType::ERASER: 
+		eraser->Erase(Application::GetInstance()->GetRenderer(), m_texture, m_prevX, m_prevY, x, y, m_defaultCanvasColour);
+		break;
+	case ToolType::BRUSH:
+		brush->Draw(m_texture, m_prevX, m_prevY, x, y, m_currentSelectedColor);
 		break;
 	}
-}
-void Canvas::Erase(int x, int y )
-{ 
-	if (m_prevX == -1 || m_prevY == -1)
-	{
-		// Set the starting point if the previous point is invalid
-		m_prevX = x;
-		m_prevY = y;
-		return;
-	}
-
-	SDL_SetRenderTarget(m_renderer, m_texture);
-	SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
-	SDL_RenderDrawLine(m_renderer, m_prevX, m_prevY, x, y);
-	SDL_SetRenderTarget(m_renderer, NULL);
-
-
-	m_prevX = x;
-	m_prevY = y;
 }
 void Canvas::ResizeDrawingTool()
 {
@@ -100,15 +92,16 @@ void Canvas::ResizeDrawingTool()
 }
 void Canvas::Render()
 {
-	SDL_RenderCopy(m_renderer, m_texture, NULL, NULL);
+	SDL_RenderCopy(Application::GetInstance()->GetRenderer(), m_texture, NULL, NULL);
 }
 
 void Canvas::Fill()
 {
-	SDL_SetRenderTarget(m_renderer, m_texture);
-	SDL_SetRenderDrawColor(m_renderer, 220, 220, 220, 255);
-	SDL_RenderClear(m_renderer);
-	SDL_SetRenderTarget(m_renderer, NULL);
+	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), m_texture);
+	//SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), 220, 220, 220, 255);
+	SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), 20, 20, 20, 255);
+	SDL_RenderClear(Application::GetInstance()->GetRenderer());
+	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), NULL);
 }
 void Canvas::SetColorPalleteColors()
 {

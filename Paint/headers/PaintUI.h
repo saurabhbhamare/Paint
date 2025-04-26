@@ -19,15 +19,22 @@ public:
 	SDL_Cursor* m_cursor;
 
 	//menu list 
+	bool isMenuVisible = false;
+	const int numberOfMenus =7;
 	//std::map<SDL_KeyCode, std::string> toolMap;
-	std::string menulist[10];
+	SDL_Surface* menuSurfaces[20];
+	SDL_Texture* menuTextures[20];
+	std::string menulist[20];
 	
+
+	SDL_Texture* m_menuTexture;
 
 	//Color Palette 
 	bool isPalleteVisible;
 	SDL_Color currentSelectedColor;
 
 public:
+	void CreateMenuTextures();
 	void ShowColorPointerArrow(int x, int y);
 	void LoadSDLCursor();
 	void LoadColorPointerArrow();
@@ -39,5 +46,15 @@ public:
 	void ShowNotificationPanel(std::string notification);
 	void ShowColourPallete(SDL_Renderer* renderer, std::map<std::string, SDL_Color>* colorPalette);
 	void CleanResources();
+
+	//menu
+	void CreateMenuTexture();
+	void RenderMenuBackground();
+	void ClearMenuArea();
+	void HideMenu();
 	SDL_Color PickColorFromPaletteUI(int x, int y, std::map<std::string, SDL_Color>* colorPalette,SDL_Color &color);
+
+
+	//clearn resources
+	void FreeMenuSurfaces();
 };

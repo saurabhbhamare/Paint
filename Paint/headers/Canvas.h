@@ -25,6 +25,7 @@ public:
 	std::map<std::string, SDL_Color>* m_paletteColors;
 	SDL_Color m_currentSelectedColor;
 	SDL_Color m_defaultDrawingToolColor;
+	SDL_Color m_defaultCanvasColour;
 
 
 
@@ -32,12 +33,14 @@ public:
 
 	SDL_Renderer* m_renderer;
 	SDL_Texture* m_texture;
+	
 	uint32_t defBackgroundColour;
 	//uint32_t currentSelectedColour;
 public: 
-	Canvas(SDL_Renderer* renderer);
+	Canvas();
 	Pencil* pencil;
 	Eraser* eraser;
+	Brush* brush;
 	Tool* currentTool;
 	ToolType currentActiveTool;
 public:
@@ -50,7 +53,7 @@ public:
 	void HandleMouseClick(int mouseX, int mouseY);
 	void SetActiveTool(Tool tool);
 	void ResizeDrawingTool();
-	void Erase(int x, int y);
+	//void Erase(int x, int y);
 	void Fill();
 	void SetCurrentSelectedColor(SDL_Color color);
 
