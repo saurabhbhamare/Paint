@@ -160,8 +160,8 @@
   <ItemGroup>
     <ClInclude Include="headers\Application.h" />
     <ClInclude Include="headers\Canvas.h" />
-    <ClInclude Include="headers\Tool.h" />
     <ClInclude Include="headers\PaintUI.h" />
+    <ClInclude Include="headers\Tool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

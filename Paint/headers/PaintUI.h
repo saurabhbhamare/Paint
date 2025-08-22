@@ -3,7 +3,7 @@
 #include<SDL_ttf.h>
 #include<iostream>
 #include<map>
-//#include<string>
+
 class PaintUI
 {
 public: 
@@ -14,6 +14,7 @@ private:
 public:
 
 	//Cursor
+	SDL_Surface* m_pencilIcon;
 	SDL_Surface* m_arrowSurface;
 	SDL_Surface* colorPointerArrow;
 	SDL_Cursor* m_cursor;
@@ -36,6 +37,7 @@ public:
 public:
 	void CreateMenuTextures();
 	void ShowColorPointerArrow(int x, int y);
+	void ImportToolIconImages();
 	void LoadSDLCursor();
 	void LoadColorPointerArrow();
 	void InitializeCursor();

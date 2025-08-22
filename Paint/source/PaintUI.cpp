@@ -4,7 +4,7 @@
 
 PaintUI::PaintUI()
 {
-	
+	ImportToolIconImages();
 	LoadFont();
 	SetFontColor();
 	InitializeMenuList();
@@ -13,8 +13,6 @@ PaintUI::PaintUI()
 	LoadColorPointerArrow();
 	CreateMenuTextures();
 	
-
-
 	RenderMenuList();
 	//FreeMenuSurfaces();
 
@@ -28,14 +26,14 @@ void PaintUI::InitializeMenuList()
 	menulist[4] = "Press R For Color Palette";
 	menulist[5] = "Press Esq For Close Paint";
 	menulist[6] = "Press Y For Magic Brush";*/
-	menulist[1] = "Magic Brush:     W";
+	menulist[1] = "Magic Brush:      W";
 	menulist[2] = "Erasing Tool:     E";
-	menulist[3] = "Fill Colour:   R";
-	menulist[4] = "Save Canvas:   T";
-	menulist[5] = "Colour Palette:   ";
-	menulist[7] = "Close Paint:  esc   ";
-	menulist[8] = "Increase Tool:  esc   ";
-	menulist[9] = "Decrease Tool:  esc   ";
+	menulist[3] = "Fill Colour:      R";
+	menulist[4] = "Save Canvas:      T";
+	menulist[5] = "Colour Palette:   P";
+	menulist[7] = "Increase Tool:    +   ";
+	menulist[8] = "Decrease Tool:    -   ";
+	menulist[9] = "Close Paint:      esc";
 	menulist[10] = "Import Image:  1   ";
 	menulist[11] = "Spray Paint:  esc   ";
 	menulist[12] = "Text Creation:  esc   ";
@@ -49,7 +47,7 @@ void PaintUI::InitializeMenuList()
 } 
 void PaintUI::SetFontColor()
 {
-	m_fontColor = { 120,120,120 };
+	m_fontColor = { 0,0,0 };
 }
 
 void PaintUI::LoadFont()
@@ -57,6 +55,7 @@ void PaintUI::LoadFont()
 	//m_font = TTF_OpenFont("C:/Programming/Paint/Paint/fonts/handjet/Handjet-Regular.ttf", 24);
 	//m_font = TTF_OpenFont("C:/Programming/Paint/Paint/fonts/handwritten/PWSimpleHandwriting.ttf", 20);
 	m_font = TTF_OpenFont("C:/Programming/Paint/Paint/fonts/handwritten/gabiie_s handwritting.ttf", 18);
+	//m_font = TTF_OpenFont("C:/Programming/Paint/Paint/fonts/roboto/Roboto-Regular.ttf", 18);
 	//m_font = TTF_OpenFont("C:/Programming/Paint/Paint/fonts/segoeui/segoeui.ttf", 25);
 	if (m_font == nullptr)
 	{
@@ -64,20 +63,26 @@ void PaintUI::LoadFont()
 	}
 }
 void PaintUI::LoadSDLCursor()
-{
+{/*
 	m_arrowSurface = SDL_LoadBMP("C:/Programming/Paint/Paint/images/pencilwithshadow.bmp");
 	if (m_arrowSurface == nullptr)
 	{
 		std::cout << "failed to get the pencil arrow image in loadSDlCursor" << std::endl;
+	}*/
+	m_cursor = SDL_CreateColorCursor(m_pencilIcon, 40,40);
+
+	if (m_cursor == nullptr)
+	{
+		std::cout << "m_cursor is null in losdsdlcurso" << std::endl;
 	}
 }
 void PaintUI::InitializeCursor()
 {
-	m_cursor = SDL_CreateColorCursor(m_arrowSurface, 16, 16);
+	/*m_cursor = SDL_CreateColorCursor(m_arrowSurface, 16, 16);
 	if (m_cursor == nullptr)
 	{
 		std::cout << "failed to create the cursor" << std::endl;
-	}
+	}*/
 }
 void PaintUI::ShowColourPallete(SDL_Renderer* renderer,std::map<std::string,SDL_Color>*colorPalette)
 {
@@ -119,9 +124,19 @@ SDL_Color PaintUI::PickColorFromPaletteUI(int mPosX , int mPosY, std::map<std::s
 	}
 	return { 0, 0, 0, 255 };
 }
+void PaintUI::ImportToolIconImages()
+{
+	m_pencilIcon = SDL_LoadBMP("C:/Programming/Paint/Paint/images/Square.bmp");
+	if (m_pencilIcon == nullptr)
+	{
+		std::cout << "pencil Icon is not loaded" << std::endl;
+	}
+}
 void PaintUI::LoadColorPointerArrow()
 {
 	colorPointerArrow = SDL_LoadBMP("C:/Programming/Paint/Paint/images/handdrawnarrowpalette1.bmp");
+
+
 	if (colorPointerArrow == nullptr)
 	{
 		std::cout << "color pointer arrow is null in loadcolorPOInterarrow" << std::endl;
@@ -159,7 +174,7 @@ void PaintUI::RenderMenuList()
 	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), m_menuTexture);
 	//SDL_RenderClear(Application::GetInstance()->GetRenderer());
 		int yOffSet = 50;
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			if (menuTextures[i])
 			{
@@ -171,7 +186,7 @@ void PaintUI::RenderMenuList()
 			}
 
 		}
-		//SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), NULL); // Reset back to default
+		SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), NULL); // Reset back to default
 }
 void PaintUI::FreeMenuSurfaces()
 {
@@ -184,7 +199,7 @@ void PaintUI::RenderMenuBackground()
 {
 	/*SDL_Rect menuRect = { 20,20,1160,600 };
 	SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), 0, 0, 0, 255);
-	SDL_RenderFillRect(Application::GetInstance()->GetRenderer(), &menuRect);*/
+	SDL_RenderFillRect(Application::GetInstance()->GetRenderer(), &menuRect)*/;
 
 }
 void PaintUI::ClearMenuArea()
@@ -199,6 +214,7 @@ void PaintUI::ClearMenuArea()
 	SDL_RenderFillRect(Application::GetInstance()->GetRenderer(), &menuRect);
 	Application::GetInstance()->GetCanvas()->Render();
 	SDL_RenderPresent(Application::GetInstance()->GetRenderer()); // Refresh screen
+	//SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), Application::GetInstance()->GetCanvas()->m_texture);
 }
 void PaintUI::HideMenu()
 {

@@ -74,6 +74,23 @@ void Application::Run()
 			{
 				m_canvas->ResetPointerPosition();
 			}
+			if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				m_canvas->SaveCanvasState();
+			}
+			if (event.type == SDL_KEYDOWN && (SDL_GetModState() & KMOD_CTRL) && event.key.keysym.sym == SDLK_z)
+			{
+				//if (event.type == SDL_MOUSEMOTION && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))) return;
+				std::cout << "clicked z button";
+				m_canvas->RevertLastAction();
+				m_canvas->Render();
+			}
+			if (event.type == SDL_KEYDOWN && (SDL_GetModState() & KMOD_CTRL) && event.key.keysym.sym == SDLK_y)
+			{
+				std::cout << "clicked x button";
+				m_canvas->RestoreLastAction();
+				m_canvas->Render();
+			}
 			if (event.type == SDL_MOUSEMOTION && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 			{
 				int mPosX;
@@ -91,7 +108,7 @@ void Application::Run()
 			}
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
 			{
-				m_canvas->SaveCanvas("sketch.bmp",1200,700);
+				m_canvas->SaveCanvasFile("sketch.bmp",SCREEN_WIDTH,SCREEN_HEIGHT);
 			}
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m)
 			{
@@ -105,7 +122,7 @@ void Application::Run()
 					m_paintUI->ClearMenuArea();
 					
 					m_canvas->Render();          // Re-render canvas to restore drawing
-					//m_canvas->Fill();
+					SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), m_canvas->m_texture);
 					SDL_RenderPresent(Application::GetInstance()->GetRenderer()); // Refresh screen
 
 				}
@@ -122,17 +139,43 @@ void Application::Run()
 			{
 				m_canvas->currentActiveTool = ToolType::BRUSH;
 			}
+			/*if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f)
+			{
+				Application::GetInstance()->GetCanvas()->Fill();
+			}*/
 		}
 		//m_canvas->Render();
 		m_paintUI->ShowColourPallete(m_renderer,m_canvas->m_paletteColors);
 		SDL_RenderPresent(m_renderer);
+		SDL_SetCursor(m_paintUI->m_cursor);
 		
 	}
 
 }
 void Application::Clean()
 {
-
+	if (m_canvas)
+	{
+		delete m_canvas;
+		m_canvas == nullptr;
+	}
+	if (m_paintUI)
+	{
+		delete m_paintUI;
+		m_paintUI == nullptr;
+	}
+	if (m_renderer)
+	{
+		SDL_DestroyRenderer(m_renderer);
+		m_renderer = nullptr;
+	}
+	if (m_window)
+	{
+		SDL_DestroyWindow(m_window);
+		m_window = nullptr;
+	}
+	//Quit SDL
+	SDL_Quit();
 }
 Canvas* Application::GetCanvas()
 {

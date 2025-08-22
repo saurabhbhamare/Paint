@@ -3,6 +3,8 @@
 #include</Programming/Paint/Paint/headers/Tool.h>
 #include<map>
 #include<string>
+#include<stack>
+#include<list>
 class Canvas
 {
 private:
@@ -28,6 +30,10 @@ public:
 	SDL_Color m_defaultCanvasColour;
 
 
+	//
+	std::stack<SDL_Texture*> canvasStateUndoStack;
+	std::stack<SDL_Texture*> canvasStateRedoStack;
+
 
 	//using textures
 
@@ -44,16 +50,21 @@ public:
 	Tool* currentTool;
 	ToolType currentActiveTool;
 public:
+	void SaveCanvasState();
+	void RevertLastAction();
+	void RestoreLastAction();
+	void CreateBackgroundTexture();
 	void HandleDrawingTool(int x, int y);
 	void InitializeDrawingTools();
+
 	void ResetPointerPosition();
+	void DrawLineBetweenTwoPoints(int x, int y);
 	void CreateCanvasTexture();
 	void Render();
-	void SaveCanvas(const char* fileName, int width , int height);
+	void SaveCanvasFile(const char* fileName, int width , int height);
 	void HandleMouseClick(int mouseX, int mouseY);
 	void SetActiveTool(Tool tool);
 	void ResizeDrawingTool();
-	//void Erase(int x, int y);
 	void Fill();
 	void SetCurrentSelectedColor(SDL_Color color);
 

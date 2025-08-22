@@ -16,12 +16,12 @@ public:
 
 	//SDL_Window* GetWindow();
 
-private: 
+public: 
 	/*int prevX = -1;
 	int prevY = -1;*/
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
-
+private:
 	SDL_Window* m_window; 
 	SDL_Renderer* m_renderer;
 	Canvas* m_canvas;

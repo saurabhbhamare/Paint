@@ -10,6 +10,7 @@ Canvas::Canvas()
 	InitializeDrawingTools();
 	CreateCanvasTexture();
 	currentActiveTool = ToolType::PENCIL;
+	//CreateBackgroundTexture();
 	Fill();
 	m_currentSelectedColor = { 0,0,0,255 };
 	m_defaultCanvasColour = { 220,220,220,255 };
@@ -24,8 +25,83 @@ void Canvas::InitializeDrawingTools()
 
 	currentTool = pencil;
 }
+void Canvas::SaveCanvasState()
+{
+	int width = Application::GetInstance()->SCREEN_WIDTH;
+	int height = Application::GetInstance()->SCREEN_HEIGHT;
+	SDL_Renderer* renderer = Application::GetInstance()->GetRenderer();
+	SDL_Texture* snapshot = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+	SDL_SetRenderTarget(renderer, snapshot);
+	SDL_RenderCopy(renderer, m_texture, NULL, NULL);
+	canvasStateUndoStack.push(snapshot);
+	std::cout << "Size of undostack is :" << canvasStateUndoStack.size() << std::endl;
+}
+void Canvas::RevertLastAction()
+{
+	SDL_Renderer* renderer = Application::GetInstance()->GetRenderer();
+	int width = Application::GetInstance()->SCREEN_WIDTH;
+	int height = Application::GetInstance()->SCREEN_HEIGHT;
+	
+	if (!canvasStateUndoStack.empty()) 
+	{
+		SDL_Texture* lastState = canvasStateUndoStack.top();
+		canvasStateUndoStack.pop();
 
-void Canvas::SaveCanvas(const char* filename,int width , int height)
+		SDL_Texture* currentState = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+
+		SDL_SetRenderTarget(renderer, currentState);
+		SDL_RenderCopy(renderer, m_texture, NULL, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
+
+		canvasStateRedoStack.push(currentState);
+		
+
+		SDL_SetRenderTarget(renderer, m_texture);
+		SDL_RenderCopy(renderer, lastState, NULL, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
+		SDL_DestroyTexture(lastState);
+		SDL_RenderPresent(renderer);
+	}
+	
+}
+void Canvas::RestoreLastAction()
+{
+	SDL_Renderer* renderer = Application::GetInstance()->GetRenderer();
+	int width = Application::GetInstance()->SCREEN_WIDTH;
+	int height = Application::GetInstance()->SCREEN_HEIGHT;
+
+	if (!canvasStateRedoStack.empty())
+	{
+		SDL_Texture* nextState = canvasStateRedoStack.top();
+		canvasStateRedoStack.pop();
+
+		SDL_Texture* redoCopy = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+
+		SDL_SetRenderTarget(renderer, redoCopy);
+		SDL_RenderCopy(renderer, m_texture, NULL, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
+
+		canvasStateUndoStack.push(redoCopy);
+
+		SDL_SetRenderTarget(renderer, m_texture);
+		SDL_RenderCopy(renderer, nextState, NULL, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
+		SDL_DestroyTexture(nextState);
+		SDL_RenderPresent(renderer);
+	}
+}
+
+void Canvas::CreateBackgroundTexture()
+{
+	SDL_Surface* backgroundSurface = SDL_LoadBMP("C:/Programming/Paint/Paint/images/PaperTexture.bmp");
+	m_texture = SDL_CreateTextureFromSurface(Application::GetInstance()->GetRenderer(), backgroundSurface);
+	SDL_FreeSurface(backgroundSurface);
+	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), m_texture);
+	SDL_RenderClear(Application::GetInstance()->GetRenderer());
+	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), NULL);
+	SDL_RenderCopy(Application::GetInstance()->GetRenderer(), m_texture, NULL, NULL);
+}
+void Canvas::SaveCanvasFile(const char* filename,int width , int height)
 {
 	//std::cout << "in save canvas" << std::endl;
 	SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
@@ -56,14 +132,13 @@ void Canvas::ResetPointerPosition()
 }
 void Canvas::CreateCanvasTexture()
 {
-	m_texture = SDL_CreateTexture(Application::GetInstance()->GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1200, 700);
+	int width = Application::GetInstance()->SCREEN_WIDTH;
+	int height = Application::GetInstance()->SCREEN_HEIGHT;
 
-
-
-	//m_menuTexture = SDL_CreateTexture(Application::GetInstance()->GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1200, 700);
+	m_texture = SDL_CreateTexture(Application::GetInstance()->GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
 	if (m_texture == nullptr)
 	{
-		std::cout << "mtexture is null ptr" << std::endl;
+		std::cout << "mtexture is null" << std::endl;
 	}
 }
 void Canvas::HandleMouseClick(int mouseX, int mouseY)
@@ -76,10 +151,10 @@ void Canvas::HandleDrawingTool(int x, int y)
 	switch (currentActiveTool)
 	{
 	case ToolType::PENCIL:
-		pencil->Draw(Application::GetInstance()->GetRenderer(), m_texture, m_prevX, m_prevY, x, y,m_currentSelectedColor);
+		pencil->Draw(m_texture, m_prevX, m_prevY, x, y,m_currentSelectedColor);
 		break;
 	case ToolType::ERASER: 
-		eraser->Erase(Application::GetInstance()->GetRenderer(), m_texture, m_prevX, m_prevY, x, y, m_defaultCanvasColour);
+		eraser->Erase(m_texture, m_prevX, m_prevY, x, y, m_defaultCanvasColour);
 		break;
 	case ToolType::BRUSH:
 		brush->Draw(m_texture, m_prevX, m_prevY, x, y, m_currentSelectedColor);
@@ -94,14 +169,33 @@ void Canvas::Render()
 {
 	SDL_RenderCopy(Application::GetInstance()->GetRenderer(), m_texture, NULL, NULL);
 }
+void Canvas::DrawLineBetweenTwoPoints(int x, int y)
+{
+	int dx = abs(x - m_prevX); 
+	int dy = abs(y - m_prevY);
 
+	int sx = (m_prevX > x) ? 1 : -1;
+	int sy = (m_prevY > y) ? 1 : -1;
+	int err = dx - dy;
+	SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), m_currentSelectedColor.r, m_currentSelectedColor.g, m_currentSelectedColor.b, m_currentSelectedColor.a);
+	
+	while (true)
+	{
+		SDL_RenderDrawPoint(Application::GetInstance()->GetRenderer(), x, y);
+		if (x == m_prevX && y == m_prevY) break;
+		
+		int e2 = err * 2;
+		if (e2 > -dy) { err -= dy; x+= sx; }
+		if (e2 > -dx) { err -= dx; y+= sy; }
+	}
+	m_prevX = x; 
+	m_prevY = y;
+}
 void Canvas::Fill()
 {
 	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), m_texture);
-	//SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), 220, 220, 220, 255);
-	SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), 20, 20, 20, 255);
+	SDL_SetRenderDrawColor(Application::GetInstance()->GetRenderer(), 220, 220, 220, 255);
 	SDL_RenderClear(Application::GetInstance()->GetRenderer());
-	SDL_SetRenderTarget(Application::GetInstance()->GetRenderer(), NULL);
 }
 void Canvas::SetColorPalleteColors()
 {

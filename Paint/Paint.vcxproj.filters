@@ -56,13 +56,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\Tool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="headers\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="headers\Canvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\Tool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="headers\PaintUI.h">
